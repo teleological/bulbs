@@ -53,13 +53,16 @@ def run_tests():
     return suite()
 
 # Python 3
-install_requires = ['distribute', 'httplib2>=0.7.2', 'pyyaml>=3.10', 'six', 'omnijson']
+install_requires = ['httplib2>=0.7.2', 'pyyaml>=3.10', 'six', 'omnijson']
 if sys.version < '3':
+    install_requires.insert(0, 'distribute')
     install_requires.append('python-dateutil==1.5')
 else:
     # argparse is in 3.2 but not 3.1
     install_requires.append('argparse')
     install_requires.append('python-dateutil>=2')
+    if sys.version_info[0] == 3 and sys.version_info[1] < 6:
+        install_requires.insert(0, 'distribute')
 
 
 setup (

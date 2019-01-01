@@ -1,3 +1,4 @@
+import sys
 import os
 import io
 import re
@@ -198,10 +199,12 @@ class Scanner:
         sub_pattern = sre_parse.Pattern()
         sub_pattern.flags = flags
         for phrase, action in self.lexicon:
-            patterns.append(sre_parse.SubPattern(sub_pattern, [
-                (SUBPATTERN, (len(patterns) + 1, sre_parse.parse(phrase, flags))),
-                ]))
-        sub_pattern.groups = len(patterns) + 1
+            gid = sub_pattern.opengroup()
+            data = (len(patterns) + 1, 0, 0, sre_parse.parse(phrase, flags)) \
+                    if sys.version_info[0] == 3 and sys.version_info[1] >= 6 else \
+                    (len(patterns) + 1, sre_parse.parse(phrase, flags))
+            patterns.append(sre_parse.SubPattern(sub_pattern, [(SUBPATTERN, data)]))
+            sub_pattern.closegroup(gid, patterns[-1])
         group_pattern = sre_parse.SubPattern(sub_pattern, [(BRANCH, (None, patterns))])
         return sre_compile.compile(group_pattern)
 
